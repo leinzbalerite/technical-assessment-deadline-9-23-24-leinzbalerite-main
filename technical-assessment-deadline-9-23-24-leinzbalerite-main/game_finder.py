@@ -7,7 +7,7 @@ Given the following inputs:
 Implement find_qualified_games to return a list of unique qualified gameIDs in which at least <player_count> players have a True Shooting percentage >= <true_shooting_cutoff>, ordered from most to least recent game.
 """
 from datetime import datetime
-
+# Function calculates the truse shooting percentage for a player
 def calculate_true_shooting_percentage(player: dict) -> float:
     fieldGoal2_attempted = player['fieldGoal2Attempted']
     fieldGoal2_made = player['fieldGoal2Made']
@@ -28,26 +28,30 @@ def calculate_true_shooting_percentage(player: dict) -> float:
     trueShooting_percentage = points / (2 * (total_fieldGoal_attempted + 0.44 * freeThrow_attempted))
     return trueShooting_percentage * 100  # Convert into a percentage
 
-
+# Function to find qualified games based on their true shooting percentage and min number of players that must qualify
 def find_qualified_games(game_data: list[dict], true_shooting_cutoff: int, player_count: int) -> list[int]:
+    # Dictionary to store the number of qualified players and gameDate for each gameID
     qualified_games = {}
+     # Iterate through each player's game data
     for player in game_data:
         game_id = player['gameID']
         trueShooting_percentage = calculate_true_shooting_percentage(player)
-
+		# Check if each player's true shooting percentage meets or exceeds the shooting cutoff
         if trueShooting_percentage >= true_shooting_cutoff:
+            # If the gameID is not in qualified_games, initialize it
             if game_id not in qualified_games:
                 qualified_games[game_id] = {
                     'count': 0,
-                    'gameDate': player['gameDate']  
+                    'gameDate': player['gameDate'] # Store the game date 
                 }
+            # add to the count of qualified players for this game
             qualified_games[game_id]['count'] += 1
 
     # Filter games where the number of qualified players is >= player_count
     result = [
-        (game_id, game_info['gameDate'])
-        for game_id, game_info in qualified_games.items()
-        if game_info['count'] >= player_count
+        (game_id, game_info['gameDate']) # Keep track of both game_id and gameDate for sorting
+        for game_id, game_info in qualified_games.items() # Iterate over all games
+        if game_info['count'] >= player_count # Only keep games that meet the criteria
     ]
 
     # Sort the result by date in descending order (most recent first)
